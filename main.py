@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from database import engine, SessionLocal
 
 app = FastAPI()
 
@@ -6,5 +7,5 @@ app = FastAPI()
 @app.get("/")
 def home():
     return {
-        "message": "Render deployment successful"
+        "message": "Database import successful"
     }
