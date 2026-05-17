@@ -1,10 +1,12 @@
 from pydantic import BaseModel, EmailStr, validator
 from typing import Optional
-import re
 from enum import Enum
+import re
 
 
-# ---------- ROLE ENUM (DROPDOWN) ----------
+# ==========================================
+# ROLE ENUM
+# ==========================================
 
 class RoleEnum(str, Enum):
     admin = "admin"
@@ -12,7 +14,9 @@ class RoleEnum(str, Enum):
     analyst = "analyst"
 
 
-# ---------- USER ----------
+# ==========================================
+# USER SCHEMAS
+# ==========================================
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -21,20 +25,31 @@ class UserCreate(BaseModel):
 
     @validator("password")
     def validate_password(cls, v):
+
         if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
+            raise ValueError(
+                "Password must be at least 8 characters"
+            )
 
         if not re.search(r"[A-Z]", v):
-            raise ValueError("Must include uppercase letter")
+            raise ValueError(
+                "Must include uppercase letter"
+            )
 
         if not re.search(r"[a-z]", v):
-            raise ValueError("Must include lowercase letter")
+            raise ValueError(
+                "Must include lowercase letter"
+            )
 
         if not re.search(r"\d", v):
-            raise ValueError("Must include a number")
+            raise ValueError(
+                "Must include a number"
+            )
 
         if not re.search(r"[!@#$%^&*]", v):
-            raise ValueError("Must include special character")
+            raise ValueError(
+                "Must include special character"
+            )
 
         return v
 
@@ -47,13 +62,15 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: EmailStr
-    role: RoleEnum   # ✅ use enum here also
+    role: RoleEnum
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
-# ---------- TRANSACTION ----------
+# ==========================================
+# TRANSACTION SCHEMAS
+# ==========================================
 
 class TransactionCreate(BaseModel):
     amount: float
@@ -62,10 +79,24 @@ class TransactionCreate(BaseModel):
     date: str
     notes: Optional[str] = None
 
+    @validator("amount")
+    def validate_amount(cls, v):
+
+        if v <= 0:
+            raise ValueError(
+                "Amount must be positive"
+            )
+
+        return v
+
     @validator("type")
     def validate_type(cls, v):
+
         if v.lower() not in ["income", "expense"]:
-            raise ValueError("Type must be 'income' or 'expense'")
+            raise ValueError(
+                "Type must be 'income' or 'expense'"
+            )
+
         return v.lower()
 
 
@@ -84,13 +115,4 @@ class TransactionResponse(BaseModel):
     notes: Optional[str]
 
     class Config:
-        from_attributes = True
-        
-class TransactionCreate(BaseModel):
-    amount: float
-
-    @validator("amount")
-    def validate_amount(cls, v):
-        if v <= 0:
-            raise ValueError("Amount must be positive")
-        return v    
+        orm_mode = True
