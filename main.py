@@ -1,11 +1,13 @@
 from fastapi import FastAPI
-from database import engine, SessionLocal
+from utils.security import hash_password
 
 app = FastAPI()
+
+test = hash_password("Admin123")
 
 
 @app.get("/")
 def home():
     return {
-        "message": "Database import successful"
+        "message": "Hashing successful"
     }
